@@ -17,6 +17,14 @@ public extension StateUpdate {
     }
 }
 
+public func stateDiff<Root, State>(_ update: StateUpdate<Root, State>) -> String? {
+    update.stateDiff
+}
+
+public func printDiff<Root, State>(_ update: StateUpdate<Root, State>) {
+    update.printDiff()
+}
+
 public extension View {
     func printStateUpdates<P: StoreViewProvider>(for provider: P?, name: String = "") -> some View {
         let publisher = provider?.stateDidUpdatePublisher ?? Empty().eraseToAnyPublisher()
