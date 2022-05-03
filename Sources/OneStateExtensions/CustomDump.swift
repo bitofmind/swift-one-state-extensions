@@ -26,8 +26,8 @@ public func printDiff<Root, State>(_ update: StateUpdate<Root, State>) {
 }
 
 public extension View {
-    func printStateUpdates<P: StoreViewProvider>(for provider: P?, name: String = "") -> some View {
-        let publisher = provider?.stateDidUpdatePublisher ?? Empty().eraseToAnyPublisher()
+    func printStateUpdates<P: StoreViewProvider>(for provider: P, name: String = "") -> some View {
+        let publisher = provider.stateDidUpdatePublisher
         return onReceive(publisher.flatMap { update -> AnyPublisher<StateUpdate<P.Root, P.State>, Never> in
             if Thread.isMainThread {
                 return Just(update).eraseToAnyPublisher()
