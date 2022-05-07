@@ -41,3 +41,8 @@ public extension View {
     }
 }
 
+extension Writable: CustomDumpRepresentable {
+    public var customDumpValue: Any {
+        wrappedValue
+    }
+}
