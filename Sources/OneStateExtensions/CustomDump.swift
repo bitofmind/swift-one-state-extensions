@@ -46,3 +46,9 @@ extension Writable: CustomDumpRepresentable {
         wrappedValue
     }
 }
+
+extension StateModel: CustomDumpRepresentable {
+    public var customDumpValue: Any {
+        wrappedValue
+    }
+}
