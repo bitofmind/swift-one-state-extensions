@@ -17,6 +17,18 @@ extension IdentifiedArray: StateContainer where Element: Identifiable, Element.I
     }
 }
 
+extension IdentifiedArray: ModelContainer where Element: ViewModel&Identifiable, Element.State: Identifiable, Element.ID == ID, Element.State.ID == ID {
+    public typealias StateContainer = IdentifiedArrayOf<Element.State>
+
+    public static func modelContainer(from elements: [Element]) -> Self {
+        .init(uniqueElements: elements)
+    }
+
+    public var stateContainer: StateContainer {
+        StateContainer(uniqueElements: map { $0.value(for: \.self) })
+    }
+}
+
 public extension StoreViewProvider {
     subscript<Id, Element>(dynamicMember keyPath: WritableKeyPath<State, IdentifiedArray<Id, Element>>) -> [StoreView<Root, Element>] {
         containerView(for: keyPath).value(for: \.self, isSame: IdentifiedArray<Id, Element>.hasSameStructure).ids.compactMap { id in
