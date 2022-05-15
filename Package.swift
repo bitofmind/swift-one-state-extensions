@@ -12,7 +12,7 @@ let package = Package(
         .library(name: "OneStateExtensions", targets: ["OneStateExtensions"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/bitofmind/swift-one-state", from: "0.3.1"),
+        .package(url: "https://github.com/bitofmind/swift-one-state", from: "0.4.0"),
         .package(url: "https://github.com/pointfreeco/swift-custom-dump", from: "0.3.0"),
         .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "0.7.0"),
         .package(url: "https://github.com/pointfreeco/swift-identified-collections", from: "0.3.2"),
