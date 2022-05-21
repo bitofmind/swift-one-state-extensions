@@ -25,14 +25,14 @@ extension IdentifiedArray: ModelContainer where Element: ViewModel&Identifiable,
     }
 
     public var stateContainer: StateContainer {
-        StateContainer(uniqueElements: map { $0.value(for: \.self) })
+        StateContainer(uniqueElements: map { $0.nonObservableState })
     }
 }
 
 public extension StoreViewProvider {
-    subscript<Id, Element>(dynamicMember keyPath: WritableKeyPath<State, IdentifiedArray<Id, Element>>) -> [StoreView<Root, Element>] {
-        containerView(for: keyPath).value(for: \.self, isSame: IdentifiedArray<Id, Element>.hasSameStructure).ids.compactMap { id in
-            storeView(for: keyPath.appending(path: \IdentifiedArray<Id, Element>[id: id]))
+    subscript<Id, Element>(dynamicMember path: WritableKeyPath<State, IdentifiedArray<Id, Element>>) -> [StoreView<Root, Element>] {
+        value(for: path, isSame: IdentifiedArray<Id, Element>.hasSameStructure).ids.compactMap { id in
+            storeView(for: path.appending(path: \IdentifiedArray<Id, Element>[id: id]))
         }
     }
 
