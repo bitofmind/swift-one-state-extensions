@@ -2,18 +2,16 @@ import OneState
 import CasePaths
 import SwiftUI
 
-public extension StoreViewProvider where State: Equatable {
-    func `case`<Case>(_ casePath: CasePath<State, Case>) -> StoreView<Root, Case>? {
+public extension StoreViewProvider where State: Equatable, Access == Write {
+    func `case`<Case>(_ casePath: CasePath<State, Case>) -> StoreView<Root, Case, Write>? {
         storeView(for: \State[case: CaseIndex(casePath: casePath)])
     }
 
-    func `case`<Value, Case>(_ casePath: CasePath<Value, Case>, clearValue: Value) -> Binding<StoreView<Root, Case>?> where State == Writable<Value>, Value: Equatable, Case: Equatable {
+    func `case`<Value, Case>(_ casePath: CasePath<Value, Case>, clearValue: Value) -> Binding<StoreView<Root, Case, Write>?> where State == Writable<Value>, Value: Equatable, Case: Equatable {
         self[dynamicMember: \State[case: CaseIndex(casePath: casePath, clearValue: clearValue)]]
     }
-}
 
-public extension StoreViewProvider where State: Equatable {
-    func `case`<Value, Case>(_ casePath: CasePath<Value, Case>) -> Binding<StoreView<Root, Case>?> where State == Writable<Value?>, Value: Equatable, Case: Equatable {
+    func `case`<Value, Case>(_ casePath: CasePath<Value, Case>) -> Binding<StoreView<Root, Case, Write>?> where State == Writable<Value?>, Value: Equatable, Case: Equatable {
         .init {
             storeView(for: \Writable<Value?>.wrappedValue[case: CaseIndex(casePath: casePath)])
         } set: { newValue in

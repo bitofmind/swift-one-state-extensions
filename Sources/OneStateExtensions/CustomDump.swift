@@ -17,18 +17,18 @@ public extension StateUpdate {
     }
 }
 
-public func stateDiff<Root, State>(_ update: StateUpdate<Root, State>) -> String? {
+public func stateDiff<Root, State, Access>(_ update: StateUpdate<Root, State, Access>) -> String? {
     update.stateDiff
 }
 
-public func printDiff<Root, State>(_ update: StateUpdate<Root, State>) {
+public func printDiff<Root, State, Access>(_ update: StateUpdate<Root, State, Access>) {
     update.printDiff()
 }
 
 public extension View {
     func printStateUpdates<P: StoreViewProvider>(for provider: P, name: String = "") -> some View {
         let publisher = provider.stateDidUpdatePublisher
-        return onReceive(publisher.flatMap { update -> AnyPublisher<StateUpdate<P.Root, P.State>, Never> in
+        return onReceive(publisher.flatMap { update -> AnyPublisher<StateUpdate<P.Root, P.State, P.Access>, Never> in
             if Thread.isMainThread {
                 return Just(update).eraseToAnyPublisher()
             } else {
