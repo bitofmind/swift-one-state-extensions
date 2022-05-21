@@ -29,20 +29,20 @@ extension IdentifiedArray: ModelContainer where Element: ViewModel&Identifiable,
     }
 }
 
-public extension StoreViewProvider {
-    subscript<Id, Element>(dynamicMember path: WritableKeyPath<State, IdentifiedArray<Id, Element>>) -> [StoreView<Root, Element>] {
+public extension StoreViewProvider where Access == Write {
+    subscript<Id, Element>(dynamicMember path: WritableKeyPath<State, IdentifiedArray<Id, Element>>) -> [StoreView<Root, Element, Write>] {
         value(for: path, isSame: IdentifiedArray<Id, Element>.hasSameStructure).ids.compactMap { id in
             storeView(for: path.appending(path: \IdentifiedArray<Id, Element>[id: id]))
         }
     }
 
-    subscript<Element: Identifiable>(dynamicMember keyPath: WritableKeyPath<State, IdentifiedArray<Element.ID, Element>>) -> IdentifiedArray<Element.ID, StoreView<Root, Element>> {
+    subscript<Element: Identifiable>(dynamicMember keyPath: WritableKeyPath<State, IdentifiedArray<Element.ID, Element>>) -> IdentifiedArray<Element.ID, StoreView<Root, Element, Write>> {
         IdentifiedArray(uniqueElements: containerStoreViewElements(for: keyPath))
     }
 }
 
 public extension IdentifiedArray {
-    func map<VM: ViewModel, Root, State>(_ transform: (Element) -> VM) -> IdentifiedArray<VM.State.ID, VM> where Element == StoreView<Root, State>, VM.State == State, VM.State: Identifiable {
+    func map<VM: ViewModel, Root, State, Access>(_ transform: (Element) -> VM) -> IdentifiedArray<VM.State.ID, VM> where Element == StoreView<Root, State, Access>, VM.State == State, VM.State: Identifiable {
         .init(
             uniqueElements: self.elements.map(transform),
             id: \.id
