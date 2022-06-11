@@ -25,7 +25,7 @@ public extension TestStore {
         }
     }
 
-    convenience init<T>(initialState: T, environments: [Any] = []) where Model == EmptyModel<T> {
+    convenience init<T>(initialState: T, environments: [Any] = []) where M == EmptyModel<T> {
         self.init(initialState: initialState, environments: environments)
     }
 }
