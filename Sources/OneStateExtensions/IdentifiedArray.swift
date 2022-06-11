@@ -17,7 +17,7 @@ extension IdentifiedArray: StateContainer where Element: Identifiable, Element.I
     }
 }
 
-extension IdentifiedArray: ModelContainer where Element: ViewModel&Identifiable, Element.State: Identifiable, Element.ID == ID, Element.State.ID == ID {
+extension IdentifiedArray: ModelContainer where Element: Model&Identifiable, Element.State: Identifiable, Element.ID == ID, Element.State.ID == ID {
     public typealias StateContainer = IdentifiedArrayOf<Element.State>
 
     public static func modelContainer(from elements: [Element]) -> Self {
@@ -42,7 +42,7 @@ public extension StoreViewProvider where Access == Write {
 }
 
 public extension IdentifiedArray {
-    func map<VM: ViewModel, Root, State, Access>(_ transform: (Element) -> VM) -> IdentifiedArray<VM.State.ID, VM> where Element == StoreView<Root, State, Access>, VM.State == State, VM.State: Identifiable {
+    func map<M: Model, Root, State, Access>(_ transform: (Element) -> M) -> IdentifiedArray<M.State.ID, M> where Element == StoreView<Root, State, Access>, M.State == State, M.State: Identifiable {
         .init(
             uniqueElements: self.elements.map(transform),
             id: \.id
