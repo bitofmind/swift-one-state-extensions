@@ -27,6 +27,10 @@ extension IdentifiedArray: ModelContainer where Element: Model&Identifiable, Ele
     public var stateContainer: StateContainer {
         StateContainer(uniqueElements: map { $0.nonObservableState })
     }
+
+    public var models: [ModelElement] {
+        elements
+    }
 }
 
 public extension StoreViewProvider where Access == Write {
