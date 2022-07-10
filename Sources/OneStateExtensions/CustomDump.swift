@@ -17,17 +17,17 @@ public extension StateUpdate {
     }
 }
 
-public func stateDiff<State>(_ update: StateUpdate<State>) -> String? {
+@Sendable public func stateDiff<State>(_ update: StateUpdate<State>) -> String? {
     update.stateDiff
 }
 
-public func printDiff<State>(_ update: StateUpdate<State>) {
+@Sendable public func printDiff<State>(_ update: StateUpdate<State>) {
     update.printDiff()
 }
 
 public extension View {
-    func printStateUpdates<P: StoreViewProvider>(for provider: P, name: String = "") -> some View {
-        onReceive(provider.stateUpdatePublisher.flatMap { update -> AnyPublisher<StateUpdate<P.State>, Never> in
+    func printStateUpdates<P: StoreViewProvider>(for provider: P, name: String = "") -> some View where P.State: Sendable {
+        onReceive(provider.stateUpdatesPublisher.flatMap { update -> AnyPublisher<StateUpdate<P.State>, Never> in
             if Thread.isMainThread {
                 return Just(update).eraseToAnyPublisher()
             } else {
