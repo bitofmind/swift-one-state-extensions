@@ -17,6 +17,8 @@ extension IdentifiedArray: StateContainer where Element: Identifiable, Element.I
     }
 }
 
+extension IdentifiedArray: @unchecked Sendable where Element: Sendable {}
+
 extension IdentifiedArray: ModelContainer where Element: Model&Identifiable, Element.State: Identifiable, Element.ID == ID, Element.State.ID == ID {
     public typealias StateContainer = IdentifiedArrayOf<Element.State>
 
@@ -34,7 +36,7 @@ extension IdentifiedArray: ModelContainer where Element: Model&Identifiable, Ele
 }
 
 public extension StoreViewProvider where Access == Write {
-    subscript<Id, Element>(dynamicMember path: WritableKeyPath<State, IdentifiedArray<Id, Element>>) -> [StoreView<Root, Element, Write>] {
+    subscript<Id, Element>(dynamicMember path: WritableKeyPath<State, IdentifiedArray<Id, Element>>) -> [StoreView<Root, Element, Write>] where Id: Sendable {
         value(for: path, isSame: IdentifiedArray<Id, Element>.hasSameStructure).ids.compactMap { id in
             storeView(for: path.appending(path: \IdentifiedArray<Id, Element>[id: id]))
         }
@@ -74,9 +76,9 @@ private extension IdentifiedArray {
 }
 
 // Crash in keypath append if struct
-private class Cursor<ID: Hashable, Element>: Hashable {
-    var id: ID
-    var index: IdentifiedArray<ID, Element>.Index
+private class Cursor<ID: Hashable, Element>: Hashable, @unchecked Sendable {
+    let id: ID
+    let index: IdentifiedArray<ID, Element>.Index
     var fallback: Element
     
     init(id: ID, index: IdentifiedArray<ID, Element>.Index, fallback: Element) {

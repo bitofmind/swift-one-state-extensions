@@ -42,10 +42,15 @@ public extension Binding {
     }
 }
 
-struct CaseIndex<Enum, Case>: Hashable {
-    var casePath: CasePath<Enum, Case>
+final class CaseIndex<Enum, Case>: Hashable, @unchecked Sendable {
+    let casePath: CasePath<Enum, Case>
     var clearValue: Enum?
 
+    init(casePath: CasePath<Enum, Case>, clearValue: Enum? = nil) {
+        self.casePath = casePath
+        self.clearValue = clearValue
+    }
+    
     static func == (lhs: CaseIndex, rhs: CaseIndex) -> Bool {
         return true
     }
