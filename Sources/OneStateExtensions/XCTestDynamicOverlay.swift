@@ -4,24 +4,49 @@ import CustomDump
 
 public extension TestStore {
     convenience init(initialState: State, environments: [Any] = []) {
-        self.init(initialState: initialState, environments: environments) { failure in
-            let difference = diff(failure.expected, failure.actual, format: .proportional)
-                .map { "\($0.indent(by: 4))\n\n(Expected: −, Actual: +)" }
-            ??  """
-                Expected:
-                \(String(describing: failure.expected).indent(by: 2))
-                Actual:
-                \(String(describing: failure.actual).indent(by: 2))
-                """
-            
-            XCTFail(
-                """
-                State change does not match expectation: …
-                \(difference)
-                """,
-                file: failure.file,
-                line: failure.line
-            )
+        self.init(initialState: initialState, environments: environments) { @MainActor failure in
+            switch failure.kind {
+            case let .assertStateMismatch(expected: expected, actual: actual):
+                let difference = diff(expected, actual, format: .proportional)
+                    .map { "\($0.indent(by: 4))\n\n(Expected: −, Actual: +)" }
+                ??  """
+                    Expected:
+                    \(String(describing: expected).indent(by: 2))
+                    Actual:
+                    \(String(describing: actual).indent(by: 2))
+                    """
+
+                XCTFail(
+                    """
+                    State change does not match expectation: …
+                    \(difference)
+                    """,
+                    file: failure.file,
+                    line: failure.line
+                )
+
+            case let .stateNotExhausted(lastAsserted: lastAsserted, actual: actual):
+                let difference = diff(lastAsserted, actual, format: .proportional)
+                    .map { "\($0.indent(by: 4))\n\n(Last asserted: −, Actual: +)" }
+                ??  """
+                    Last asserted:
+                    \(String(describing: lastAsserted).indent(by: 2))
+                    Actual:
+                    \(String(describing: actual).indent(by: 2))
+                    """
+
+                XCTFail(
+                    """
+                    State not exhausted: …
+                    \(difference)
+                    """,
+                    file: failure.file,
+                    line: failure.line
+                )
+
+            default:
+                XCTFail(failure.message)
+            }
         }
     }
 

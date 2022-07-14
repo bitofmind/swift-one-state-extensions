@@ -7,13 +7,10 @@ public extension StateUpdate {
     var stateDiff: String? {
         diff(previous, current)
     }
-    
-    func printDiff(){
-        guard let diff = stateDiff else {
-            print("no updates")
-            return
-        }
-        print(diff)
+
+    func printDiff(name: String = "") {
+        guard let diff = stateDiff else { return }
+        Swift.print("State did update\(name.isEmpty ? "" : " for \(name)"):\n" + diff)
     }
 }
 
@@ -34,8 +31,7 @@ public extension View {
                 return Just(update).receive(on: DispatchQueue.main).eraseToAnyPublisher()
             }
         }) { update in
-            guard let diff = update.stateDiff else { return }
-            print("State did update\(name.isEmpty ? "" : " for \(name)"):\n" + diff)
+            update.printDiff(name: name)
         }
     }
 }
@@ -51,3 +47,14 @@ extension StateModel: CustomDumpRepresentable {
         wrappedValue
     }
 }
+
+public extension StoreViewProvider {
+    func printStateUpdates(name: String = "") where State: Sendable {
+        Task {
+            for await update in stateUpdates {
+                update.printDiff(name: name)
+            }
+        }
+    }
+}
+
