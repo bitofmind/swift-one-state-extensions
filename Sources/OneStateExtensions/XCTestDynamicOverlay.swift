@@ -49,12 +49,12 @@ public func assertNoFailure<State>(failure: TestFailure<State>) {
 }
 
 public extension TestStore {
-    convenience init(initialState: State, environments: [Any] = []) {
-        self.init(initialState: initialState, environments: environments, onTestFailure: assertNoFailure)
+    convenience init(initialState: State, environments: [Any] = [], file: StaticString = #file, line: UInt = #line) {
+        self.init(initialState: initialState, environments: environments, file: file, line: line, onTestFailure: assertNoFailure)
     }
 
-    convenience init<T>(initialState: T, environments: [Any] = []) where M == EmptyModel<T> {
-        self.init(initialState: initialState, environments: environments)
+    convenience init<T>(initialState: T, environments: [Any] = [], file: StaticString = #file, line: UInt = #line) where M == EmptyModel<T> {
+        self.init(initialState: initialState, environments: environments, file: file, line: line)
     }
 }
 
