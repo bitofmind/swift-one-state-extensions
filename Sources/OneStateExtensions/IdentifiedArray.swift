@@ -66,7 +66,11 @@ private extension IdentifiedArray {
                 }
             }
                
-            return self[id: cursor.id] ?? cursor.fallback
+            guard let value = self[id: cursor.id] else {
+                reportPathDidFallback()
+                return cursor.fallback
+            }
+            return value
         }
         set {
             cursor.fallback = newValue
