@@ -35,18 +35,6 @@ extension IdentifiedArray: ModelContainer where Element: Model&Identifiable, Ele
     }
 }
 
-public extension StoreViewProvider where Access == Write {
-    subscript<Id, Element>(dynamicMember path: WritableKeyPath<State, IdentifiedArray<Id, Element>>) -> [StoreView<Root, Element, Write>] where Id: Sendable {
-        value(for: path, isSame: IdentifiedArray<Id, Element>.hasSameStructure).ids.compactMap { id in
-            storeView(for: path.appending(path: \IdentifiedArray<Id, Element>[id: id]))
-        }
-    }
-
-    subscript<Element: Identifiable>(dynamicMember keyPath: WritableKeyPath<State, IdentifiedArray<Element.ID, Element>>) -> IdentifiedArray<Element.ID, StoreView<Root, Element, Write>> {
-        IdentifiedArray(uniqueElements: containerStoreViewElements(for: keyPath))
-    }
-}
-
 public extension IdentifiedArray {
     func map<M: Model, Root, State, Access>(_ transform: (Element) -> M) -> IdentifiedArray<M.State.ID, M> where Element == StoreView<Root, State, Access>, M.State == State, M.State: Identifiable {
         .init(
