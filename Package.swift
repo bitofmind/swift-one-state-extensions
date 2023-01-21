@@ -1,4 +1,4 @@
-// swift-tools-version:5.6
+// swift-tools-version:5.7
 
 import PackageDescription
 
@@ -18,9 +18,9 @@ let package = Package(
         .library(name: "OneStateExtensions", targets: ["OneStateExtensions"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/bitofmind/swift-one-state", from: "0.12.4"),
-        .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "0.10.1"),
-        .package(url: "https://github.com/pointfreeco/swift-identified-collections", from: "0.5.0"),
+        .package(url: "https://github.com/bitofmind/swift-one-state", from: "0.13.0"),
+        .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "0.11.0"),
+        .package(url: "https://github.com/pointfreeco/swift-identified-collections", from: "0.6.0"),
     ],
     targets: [
         .target(

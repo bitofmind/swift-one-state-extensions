@@ -7,6 +7,10 @@ public extension StoreViewProvider where State: Equatable, Access == Write {
         storeView(for: \State[case: CaseIndex(casePath: casePath)])
     }
 
+    func `case`<M: Model>(_ casePath: CasePath<State, M.State>) -> M? {
+        storeView(for: \State[case: CaseIndex(casePath: casePath)]).map(M.init)
+    }
+
     func `case`<Value, Case>(_ casePath: CasePath<Value, Case>, clearValue: Value) -> Binding<StoreView<Root, Case, Write>?> where State == Writable<Value>, Value: Equatable, Case: Equatable {
         self[dynamicMember: \State[case: CaseIndex(casePath: casePath, clearValue: clearValue)]]
     }
