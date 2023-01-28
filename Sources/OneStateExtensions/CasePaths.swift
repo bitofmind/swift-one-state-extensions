@@ -24,26 +24,44 @@ public extension StoreViewProvider where State: Equatable, Access == Write {
             }, at: \.self)
         }
     }
+
+    func `case`<M: Model>(_ casePath: CasePath<State, StateModel<M>>) -> M? where M.StateContainer == M.State {
+        guard let view = storeView[case: CaseIndex(casePath: casePath)]?.wrappedValue else { return nil }
+        return M(view)
+    }
+
+    func `case`<C: ModelContainer>(_ casePath: CasePath<State, StateModel<C>>) -> C? where C.StateContainer: OneState.StateContainer, C.StateContainer.Element == C.ModelElement.State {
+        guard let view = storeView[case: CaseIndex(casePath: casePath)] else { return nil }
+        return C(view)
+    }
+
+    func `case`<Value, M: Model>(_ casePath: CasePath<Value, StateModel<M>>, clearValue: Value) -> Binding<M?> where State == Writable<Value>, M.State == M.StateContainer {
+        Binding<M?> {
+            guard let view = storeView.wrappedValue[case: CaseIndex(casePath: casePath)]?.wrappedValue else { return nil }
+            return M(view)
+        } set: { newValue in
+            setValue(newValue.map {
+                casePath.embed(StateModel($0.nonObservableState))
+            } ?? clearValue, at: \.self)
+        }
+    }
+
+    func `case`<Value, M: Model>(_ casePath: CasePath<Value, StateModel<M>>) -> Binding<M?> where State == Writable<Value?>, M.State == M.StateContainer {
+        Binding<M?> {
+            guard let view = storeView.wrappedValue[case: CaseIndex(casePath: casePath)]?.wrappedValue else { return nil }
+            return M(view)
+        } set: { newValue in
+            setValue(newValue.map {
+                casePath.embed(StateModel($0.nonObservableState))
+            }, at: \.self)
+        }
+    }
 }
 
-public extension Binding {
-    func `case`<Case>(_ casePath: CasePath<Value, Case>, clearValue: Value) -> Binding<Case?> {
-        .init(
-            get: { casePath.extract(from: self.wrappedValue) },
-            set: { newValue, transaction in
-                self.transaction(transaction).wrappedValue = newValue.map(casePath.embed) ?? clearValue
-            }
-        )
-    }
-    
-    func `case`<Enum, Case>(_ casePath: CasePath<Enum, Case>) -> Binding<Case?> where Value == Enum? {
-        .init(
-            get: { self.wrappedValue.flatMap(casePath.extract(from:)) },
-            set: { newValue, transaction in
-                self.transaction(transaction).wrappedValue = newValue.map(casePath.embed)
-            }
-        )
-    }
+public extension Optional {
+  func `case`<Case>(_ casePath: CasePath<Wrapped, Case>) -> Case? {
+    flatMap(casePath.extract(from:))
+  }
 }
 
 final class CaseIndex<Enum, Case>: Hashable, @unchecked Sendable {
