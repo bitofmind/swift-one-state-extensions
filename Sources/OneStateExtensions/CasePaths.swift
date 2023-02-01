@@ -8,7 +8,7 @@ public extension StoreViewProvider where State: Equatable, Access == Write {
     }
 
     func `case`<M: Model>(_ casePath: CasePath<State, M.State>) -> M? {
-        storeView(for: \State[case: CaseIndex(casePath: casePath)]).map(M.init)
+        M?(storeView(for: \State[case: CaseIndex(casePath: casePath)]))
     }
 
     func `case`<Value, Case>(_ casePath: CasePath<Value, Case>, clearValue: Value) -> Binding<StoreView<Root, Case, Write>?> where State == Writable<Value>, Value: Equatable, Case: Equatable {
@@ -26,8 +26,7 @@ public extension StoreViewProvider where State: Equatable, Access == Write {
     }
 
     func `case`<M: Model>(_ casePath: CasePath<State, StateModel<M>>) -> M? where M.StateContainer == M.State {
-        guard let view = storeView[case: CaseIndex(casePath: casePath)]?.wrappedValue else { return nil }
-        return M(view)
+        M?(storeView[case: CaseIndex(casePath: casePath)].wrappedValue)
     }
 
     func `case`<C: ModelContainer>(_ casePath: CasePath<State, StateModel<C>>) -> C? where C.StateContainer: OneState.StateContainer, C.StateContainer.Element == C.ModelElement.State {
