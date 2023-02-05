@@ -1,43 +1,43 @@
 import OneState
 import CasePaths
-import SwiftUI
 
 public extension StoreViewProvider where State: Equatable, Access == Write {
-    func `case`<Case>(_ casePath: CasePath<State, Case>) -> StoreView<Root, Case, Write>? {
-        storeView(for: \State[case: CaseIndex(casePath: casePath)])
+    func `case`<Case>(_ casePath: CasePath<State, Case>) -> Case? where Case: Equatable {
+        storeView.value(for: \.[case: CaseIndex(casePath: casePath)])
     }
 
-    func `case`<M: Model>(_ casePath: CasePath<State, M.State>) -> M? {
-        M?(storeView(for: \State[case: CaseIndex(casePath: casePath)]))
+    func `case`<Case>(_ casePath: CasePath<State, Case>) -> StoreView<Root, Case?, Write> {
+        storeView[case: CaseIndex(casePath: casePath)]
     }
 
-    func `case`<Value, Case>(_ casePath: CasePath<Value, Case>, clearValue: Value) -> Binding<StoreView<Root, Case, Write>?> where State == Writable<Value>, Value: Equatable, Case: Equatable {
-        self[dynamicMember: \State[case: CaseIndex(casePath: casePath, clearValue: clearValue)]]
-    }
-
-    func `case`<Value, Case>(_ casePath: CasePath<Value, Case>) -> Binding<StoreView<Root, Case, Write>?> where State == Writable<Value?>, Value: Equatable, Case: Equatable {
-        .init {
-            storeView(for: \Writable<Value?>.wrappedValue[case: CaseIndex(casePath: casePath)])
-        } set: { newValue in
-            self.setValue(newValue.map {
-                casePath.embed($0.value(for: \.self))
-            }, at: \.self)
-        }
+    func `case`<M: Model>(_ casePath: CasePath<State, M.State>, ofModelType: M.Type = M.self) -> M? {
+        M?(storeView[case: CaseIndex(casePath: casePath)])
     }
 
     func `case`<M: Model>(_ casePath: CasePath<State, StateModel<M>>) -> M? where M.StateContainer == M.State {
         M?(storeView[case: CaseIndex(casePath: casePath)].wrappedValue)
     }
+}
 
-    func `case`<C: ModelContainer>(_ casePath: CasePath<State, StateModel<C>>) -> C? where C.StateContainer: OneState.StateContainer, C.StateContainer.Element == C.ModelElement.State {
-        guard let view = storeView[case: CaseIndex(casePath: casePath)] else { return nil }
-        return C(view)
+#if canImport(SwiftUI)
+import SwiftUI
+
+public extension StoreViewProvider where State: Equatable, Access == Write {
+    func `case`<Value, Case>(_ casePath: CasePath<Value, Case>, clearValue: Value) -> Binding<StoreView<Root, Case?, Write>> where State == Writable<Value>, Value: Equatable, Case: Equatable {
+        self[dynamicMember: \State[case: CaseIndex(casePath: casePath, clearValue: clearValue)]]
+    }
+
+    func `case`<Value, Case>(_ casePath: CasePath<Value, Case>) -> Binding<StoreView<Root, Case?, Write>> where State == Writable<Value?>, Value: Equatable, Case: Equatable {
+        .init {
+            storeView.wrappedValue[case: CaseIndex(casePath: casePath)]
+        } set: { newValue in
+            self.setValue(newValue.value(for: \.self).map(casePath.embed), at: \.self)
+        }
     }
 
     func `case`<Value, M: Model>(_ casePath: CasePath<Value, StateModel<M>>, clearValue: Value) -> Binding<M?> where State == Writable<Value>, M.State == M.StateContainer {
         Binding<M?> {
-            guard let view = storeView.wrappedValue[case: CaseIndex(casePath: casePath)]?.wrappedValue else { return nil }
-            return M(view)
+            M?(storeView.wrappedValue[case: CaseIndex(casePath: casePath)].wrappedValue)
         } set: { newValue in
             setValue(newValue.map {
                 casePath.embed(StateModel($0.nonObservableState))
@@ -47,8 +47,7 @@ public extension StoreViewProvider where State: Equatable, Access == Write {
 
     func `case`<Value, M: Model>(_ casePath: CasePath<Value, StateModel<M>>) -> Binding<M?> where State == Writable<Value?>, M.State == M.StateContainer {
         Binding<M?> {
-            guard let view = storeView.wrappedValue[case: CaseIndex(casePath: casePath)]?.wrappedValue else { return nil }
-            return M(view)
+            M?(storeView.wrappedValue[case: CaseIndex(casePath: casePath)].wrappedValue)
         } set: { newValue in
             setValue(newValue.map {
                 casePath.embed(StateModel($0.nonObservableState))
@@ -57,11 +56,7 @@ public extension StoreViewProvider where State: Equatable, Access == Write {
     }
 }
 
-public extension Optional {
-  func `case`<Case>(_ casePath: CasePath<Wrapped, Case>) -> Case? {
-    flatMap(casePath.extract(from:))
-  }
-}
+#endif
 
 final class CaseIndex<Enum, Case>: Hashable, @unchecked Sendable {
     let casePath: CasePath<Enum, Case>

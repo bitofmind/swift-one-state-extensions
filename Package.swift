@@ -18,7 +18,7 @@ let package = Package(
         .library(name: "OneStateExtensions", targets: ["OneStateExtensions"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/bitofmind/swift-one-state", from: "0.13.0"),
+        .package(url: "https://github.com/bitofmind/swift-one-state", from: "0.13.5"),
         .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "0.11.0"),
         .package(url: "https://github.com/pointfreeco/swift-identified-collections", from: "0.6.0"),
     ],
