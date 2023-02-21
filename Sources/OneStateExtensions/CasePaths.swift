@@ -9,50 +9,22 @@ public extension StoreViewProvider where State: Equatable, Access == Write {
     func `case`<Case>(_ casePath: CasePath<State, Case>) -> StoreView<Root, Case?, Write> {
         storeView[case: CaseIndex(casePath: casePath)]
     }
-
-    func `case`<M: Model>(_ casePath: CasePath<State, M.State>, ofModelType: M.Type = M.self) -> M? {
-        M?(storeView[case: CaseIndex(casePath: casePath)])
-    }
-
-    func `case`<M: Model>(_ casePath: CasePath<State, StateModel<M>>) -> M? where M.StateContainer == M.State {
-        M?(storeView[case: CaseIndex(casePath: casePath)].wrappedValue)
-    }
 }
 
 #if canImport(SwiftUI)
 import SwiftUI
 
 public extension StoreViewProvider where State: Equatable, Access == Write {
+    func `case`<Value, Case>(_ casePath: CasePath<Value, Case>, clearValue: Value) -> Binding<Case?> where State == Writable<Value>, Value: Equatable, Case: Equatable {
+        Binding<Case?> {
+            storeView.value(for: \.[case: CaseIndex(casePath: casePath)].wrappedValue)
+        } set: { newValue in
+            setValue(newValue.map { casePath.embed($0) } ?? clearValue, at: \.self)
+        }
+    }
+
     func `case`<Value, Case>(_ casePath: CasePath<Value, Case>, clearValue: Value) -> Binding<StoreView<Root, Case?, Write>> where State == Writable<Value>, Value: Equatable, Case: Equatable {
         self[dynamicMember: \State[case: CaseIndex(casePath: casePath, clearValue: clearValue)]]
-    }
-
-    func `case`<Value, Case>(_ casePath: CasePath<Value, Case>) -> Binding<StoreView<Root, Case?, Write>> where State == Writable<Value?>, Value: Equatable, Case: Equatable {
-        .init {
-            storeView.wrappedValue[case: CaseIndex(casePath: casePath)]
-        } set: { newValue in
-            self.setValue(newValue.value(for: \.self).map(casePath.embed), at: \.self)
-        }
-    }
-
-    func `case`<Value, M: Model>(_ casePath: CasePath<Value, StateModel<M>>, clearValue: Value) -> Binding<M?> where State == Writable<Value>, M.State == M.StateContainer {
-        Binding<M?> {
-            M?(storeView.wrappedValue[case: CaseIndex(casePath: casePath)].wrappedValue)
-        } set: { newValue in
-            setValue(newValue.map {
-                casePath.embed(StateModel($0.nonObservableState))
-            } ?? clearValue, at: \.self)
-        }
-    }
-
-    func `case`<Value, M: Model>(_ casePath: CasePath<Value, StateModel<M>>) -> Binding<M?> where State == Writable<Value?>, M.State == M.StateContainer {
-        Binding<M?> {
-            M?(storeView.wrappedValue[case: CaseIndex(casePath: casePath)].wrappedValue)
-        } set: { newValue in
-            setValue(newValue.map {
-                casePath.embed(StateModel($0.nonObservableState))
-            }, at: \.self)
-        }
     }
 }
 
