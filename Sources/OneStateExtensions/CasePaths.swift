@@ -2,10 +2,12 @@ import OneState
 import CasePaths
 
 public extension StoreViewProvider where State: Equatable, Access == Write {
+    @available(*, deprecated, message: "Use the OneStateExtensions library directly from the OneState package instead.")
     func `case`<Case>(_ casePath: CasePath<State, Case>) -> Case? where Case: Equatable {
         storeView.value(for: \.[case: CaseIndex(casePath: casePath)])
     }
 
+    @available(*, deprecated, message: "Use the OneStateExtensions library directly from the OneState package instead.")
     func `case`<Case>(_ casePath: CasePath<State, Case>) -> StoreView<Root, Case?, Write> {
         storeView[case: CaseIndex(casePath: casePath)]
     }
@@ -15,6 +17,7 @@ public extension StoreViewProvider where State: Equatable, Access == Write {
 import SwiftUI
 
 public extension StoreViewProvider where State: Equatable, Access == Write {
+    @available(*, deprecated, message: "Use the OneStateExtensions library directly from the OneState package instead.")
     func `case`<Value, Case>(_ casePath: CasePath<Value, Case>, clearValue: Value) -> Binding<Case?> where State == Writable<Value>, Value: Equatable, Case: Equatable {
         Binding<Case?> {
             storeView.value(for: \.[case: CaseIndex(casePath: casePath)].wrappedValue)
@@ -23,6 +26,7 @@ public extension StoreViewProvider where State: Equatable, Access == Write {
         }
     }
 
+    @available(*, deprecated, message: "Use the OneStateExtensions library directly from the OneState package instead.")
     func `case`<Value, Case>(_ casePath: CasePath<Value, Case>, clearValue: Value) -> Binding<StoreView<Root, Case?, Write>> where State == Writable<Value>, Value: Equatable, Case: Equatable {
         self[dynamicMember: \State[case: CaseIndex(casePath: casePath, clearValue: clearValue)]]
     }
